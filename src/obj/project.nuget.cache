@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "moKt4N0OQEc=",
+  "success": true,
+  "projectFilePath": "/home/qwtix/coding/autotrade/src/src.csproj",
+  "expectedPackageFiles": [
+    "/home/qwtix/.nuget/packages/microsoft.aspnetcore.app.ref/10.0.4/microsoft.aspnetcore.app.ref.10.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}
