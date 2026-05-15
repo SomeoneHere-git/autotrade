@@ -1,0 +1,156 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AutoTrade.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="using:AutoTrade.Models"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        x:Class="AutoTrade.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="AutoTrade - Інформаційна система автосалону">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Файл">
+                <MenuItem Header="Завантажити дані" Command="{Binding LoadDataCommand}"/>
+                <MenuItem Header="Зберегти дані" Command="{Binding SaveDataCommand}"/>
+            </MenuItem>
+        </Menu>
+
+        <Border DockPanel.Dock="Bottom" Background="LightGray" Padding="5">
+            <TextBlock Text="{Binding StatusMessage}" />
+        </Border>
+
+        <TabControl>
+            <TabItem Header="Каталог Автомобілів">
+                <Grid ColumnDefinitions="*, 300">
+                    <DockPanel Grid.Column="0">
+                        <!-- Filtering Panel -->
+                        <Border DockPanel.Dock="Top" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="5" Margin="5">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Пошук (Фільтр):" VerticalAlignment="Center" FontWeight="Bold"/>
+                                <TextBlock Text="Марка:" VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding SearchBrand}" Width="150" />
+                                <TextBlock Text="Мін. Рік:" VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding SearchMinYear}" Width="80" />
+                                <Button Content="Застосувати фільтр" Command="{Binding ApplyFilterCommand}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="5">
+                            <Button Content="Додати Вітчизняне Авто" Command="{Binding AddDomesticVehicleCommand}"/>
+                            <Button Content="Додати Іноземне Авто" Command="{Binding AddForeignVehicleCommand}"/>
+                            <Button Content="Видалити" Command="{Binding RemoveVehicleCommand}" CommandParameter="{Binding SelectedVehicle}"/>
+                        </StackPanel>
+
+                        <!-- Scenario 3 and 4 -> Uses FilteredVehicles which is sorted via LINQ -->
+                        <DataGrid ItemsSource="{Binding FilteredVehicles}" SelectedItem="{Binding SelectedVehicle}" AutoGenerateColumns="False" IsReadOnly="True" Margin="5">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Марка" Binding="{Binding Brand}"/>
+                                <DataGridTextColumn Header="Модель" Binding="{Binding Model}"/>
+                                <DataGridTextColumn Header="Рік" Binding="{Binding Year}"/>
+                                <DataGridTextColumn Header="Тип кузова" Binding="{Binding BodyType}"/>
+                                <DataGridTextColumn Header="Ціна" Binding="{Binding BasePrice}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+
+                    <!-- Details Panel -->
+                    <Border Grid.Column="1" Margin="5" Padding="10" BorderBrush="Gray" BorderThickness="1" CornerRadius="5">
+                        <StackPanel Spacing="5" DataContext="{Binding SelectedVehicle}">
+                            <TextBlock Text="Редагування Авто" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="Марка:" />
+                            <TextBox Text="{Binding Brand}" />
+
+                            <TextBlock Text="Модель:" />
+                            <TextBox Text="{Binding Model}" />
+
+                            <TextBlock Text="Тип кузова:" />
+                            <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BodyTypes}" SelectedItem="{Binding BodyType}" HorizontalAlignment="Stretch" />
+
+                            <TextBlock Text="Рік випуску:" />
+                            <TextBox Text="{Binding Year}" />
+
+                            <TextBlock Text="Ціна:" />
+                            <TextBox Text="{Binding BasePrice}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Клієнти">
+                <Grid ColumnDefinitions="*, 300">
+                    <DockPanel Grid.Column="0">
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="5">
+                            <Button Content="Додати Клієнта" Command="{Binding AddCustomerCommand}"/>
+                            <Button Content="Видалити" Command="{Binding RemoveCustomerCommand}" CommandParameter="{Binding SelectedCustomer}"/>
+                        </StackPanel>
+                        <DataGrid ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}" AutoGenerateColumns="False" IsReadOnly="True" Margin="5">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ПІБ" Binding="{Binding FullName}"/>
+                                <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}"/>
+                                <DataGridTextColumn Header="Бюджет" Binding="{Binding Requirements.MaxPrice}"/>
+                                <DataGridTextColumn Header="Бажана марка" Binding="{Binding Requirements.PreferredBrand}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+
+                    <!-- Details Panel -->
+                    <Border Grid.Column="1" Margin="5" Padding="10" BorderBrush="Gray" BorderThickness="1" CornerRadius="5">
+                        <StackPanel Spacing="5" DataContext="{Binding SelectedCustomer}">
+                            <TextBlock Text="Дані Клієнта" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="ПІБ:" />
+                            <TextBox Text="{Binding FullName}" />
+
+                            <TextBlock Text="Телефон:" />
+                            <TextBox Text="{Binding Phone}" />
+
+                            <TextBlock Text="Тип кузова:" />
+                            <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BodyTypes}" SelectedItem="{Binding Requirements.PreferredBodyType}" HorizontalAlignment="Stretch" />
+
+                            <TextBlock Text="Бюджет (Max):" />
+                            <TextBox Text="{Binding Requirements.MaxPrice}" />
+
+                            <TextBlock Text="Бажана марка:" />
+                            <TextBox Text="{Binding Requirements.PreferredBrand}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Підбір Авто">
+                <Grid RowDefinitions="Auto, *">
+                    <StackPanel Grid.Row="0" Margin="10" Spacing="10">
+                        <TextBlock Text="Оберіть клієнта для підбору авто:" FontWeight="Bold"/>
+                        <ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}" Width="300" HorizontalAlignment="Left">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding FullName}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Content="Підібрати Авто" Command="{Binding MatchVehiclesCommand}" HorizontalAlignment="Left"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding MatchedVehicles}" AutoGenerateColumns="False" IsReadOnly="True" Margin="5">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Марка" Binding="{Binding Brand}"/>
+                            <DataGridTextColumn Header="Модель" Binding="{Binding Model}"/>
+                            <DataGridTextColumn Header="Рік" Binding="{Binding Year}"/>
+                            <DataGridTextColumn Header="Тип кузова" Binding="{Binding BodyType}"/>
+                            <DataGridTextColumn Header="Ціна" Binding="{Binding BasePrice}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+    </DockPanel>
+</Window>
