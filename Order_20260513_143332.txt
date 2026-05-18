@@ -1,0 +1,13 @@
+CAR DELIVERY REQUEST
+============================
+Request Date: 13.05.2026 14:15
+Supplier: ф
+
+Vehicle Requirements:
+- Preferred Brand: и
+- Preferred Model: в
+- Body Type: Any
+- Minimum Year: Not specified
+- Maximum Price: 0
+============================
+Manager Signature: ____________
