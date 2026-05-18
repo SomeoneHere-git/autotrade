@@ -1,7 +1,9 @@
 bin/
 obj/
+src/obj/
 *.user
 .idea/
 *.sh
 .vscode/
+
 autotrade_data.json
