@@ -14,7 +14,15 @@ public class Customer : ObservableValidator, IStorable
     public string FullName
     {
         get => _fullName;
-        set => SetProperty(ref _fullName, value ?? string.Empty, true);
+        set 
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                OnPropertyChanged(nameof(FullName));
+                return;
+            }
+            SetProperty(ref _fullName, value, true);
+        }
     }
 
     private string _phone = string.Empty;
@@ -22,7 +30,15 @@ public class Customer : ObservableValidator, IStorable
     public string Phone
     {
         get => _phone;
-        set => SetProperty(ref _phone, value ?? string.Empty, true);
+        set 
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                OnPropertyChanged(nameof(Phone));
+                return;
+            }
+            SetProperty(ref _phone, value, true);
+        }
     }
 
     private string _email = string.Empty;

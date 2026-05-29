@@ -6,9 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AutoTrade.Models;
 
-[JsonDerivedType(typeof(DomesticVehicle), typeDiscriminator: "domestic")]
-[JsonDerivedType(typeof(ForeignVehicle), typeDiscriminator: "foreign")]
-public abstract class Vehicle : ObservableValidator, IStorable, IMatchable
+public class Vehicle : ObservableValidator, IStorable, IMatchable
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
@@ -17,7 +15,15 @@ public abstract class Vehicle : ObservableValidator, IStorable, IMatchable
     public string Brand
     {
         get => _brand;
-        set => SetProperty(ref _brand, value ?? string.Empty, true);
+        set 
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                OnPropertyChanged(nameof(Brand));
+                return;
+            }
+            SetProperty(ref _brand, value, true);
+        }
     }
 
     private string _model = string.Empty;
@@ -25,7 +31,15 @@ public abstract class Vehicle : ObservableValidator, IStorable, IMatchable
     public string Model
     {
         get => _model;
-        set => SetProperty(ref _model, value ?? string.Empty, true);
+        set 
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                OnPropertyChanged(nameof(Model));
+                return;
+            }
+            SetProperty(ref _model, value, true);
+        }
     }
 
     private int _year = DateTime.Now.Year;
@@ -72,8 +86,35 @@ public abstract class Vehicle : ObservableValidator, IStorable, IMatchable
         set => SetProperty(ref _basePrice, value, true);
     }
 
-    // Must be implemented by derived classes
-    public abstract double CalculateFinalPrice();
+    private VehicleOrigin _origin = VehicleOrigin.Domestic;
+    public VehicleOrigin Origin
+    {
+        get => _origin;
+        set => SetProperty(ref _origin, value, true);
+    }
+
+    private double _importTaxRate = 0.20;
+    public double ImportTaxRate
+    {
+        get => _importTaxRate;
+        set => SetProperty(ref _importTaxRate, value, true);
+    }
+
+    private double _customFees = 500.0;
+    public double CustomFees
+    {
+        get => _customFees;
+        set => SetProperty(ref _customFees, value, true);
+    }
+
+    public double CalculateFinalPrice()
+    {
+        if (Origin == VehicleOrigin.Foreign)
+        {
+            return BasePrice + (BasePrice * ImportTaxRate) + CustomFees;
+        }
+        return BasePrice;
+    }
 
     public virtual bool Matches(CustomerRequirements requirements)
     {

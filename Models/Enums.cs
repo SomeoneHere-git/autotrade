@@ -16,3 +16,19 @@ public enum BodyType
     Universal,
     Minivan
 }
+
+public enum VehicleOrigin
+{
+    Domestic,
+    Foreign
+}
+
+public enum SortOption
+{
+    Brand,
+    Model,
+    Year,
+    BasePrice,
+    FinalPrice,
+    Origin
+}

@@ -18,8 +18,12 @@ public class MainWindowViewModel : ViewModelBase
     public ObservableCollection<Vehicle> FilteredVehicles { get; } = new();
     public ObservableCollection<Customer> Customers { get; } = new();
     public ObservableCollection<Vehicle> MatchedVehicles { get; } = new();
+    public ObservableCollection<string> AvailableBrands { get; } = new();
+    public ObservableCollection<string> AvailableModels { get; } = new();
 
     public BodyType[] BodyTypes { get; } = (BodyType[])Enum.GetValues(typeof(BodyType));
+    public VehicleOrigin[] VehicleOrigins { get; } = (VehicleOrigin[])Enum.GetValues(typeof(VehicleOrigin));
+    public SortOption[] SortOptions { get; } = (SortOption[])Enum.GetValues(typeof(SortOption));
 
     private Vehicle? _selectedVehicle;
     public Vehicle? SelectedVehicle
@@ -49,12 +53,18 @@ public class MainWindowViewModel : ViewModelBase
         set => SetProperty(ref _statusMessage, value);
     }
 
-    // Filter properties (Scenario 4)
     private string _searchBrand = string.Empty;
     public string SearchBrand
     {
         get => _searchBrand;
         set => SetProperty(ref _searchBrand, value);
+    }
+
+    private string _searchModel = string.Empty;
+    public string SearchModel
+    {
+        get => _searchModel;
+        set => SetProperty(ref _searchModel, value);
     }
 
     private int? _searchMinYear;
@@ -64,15 +74,45 @@ public class MainWindowViewModel : ViewModelBase
         set => SetProperty(ref _searchMinYear, value);
     }
 
+    private BodyType _searchBodyType = BodyType.Any;
+    public BodyType SearchBodyType
+    {
+        get => _searchBodyType;
+        set => SetProperty(ref _searchBodyType, value);
+    }
 
+    private SortOption _selectedSortOption = SortOption.FinalPrice;
+    public SortOption SelectedSortOption
+    {
+        get => _selectedSortOption;
+        set
+        {
+            if (SetProperty(ref _selectedSortOption, value))
+            {
+                ApplyFilter();
+            }
+        }
+    }
+
+    private bool _sortDescending;
+    public bool SortDescending
+    {
+        get => _sortDescending;
+        set
+        {
+            if (SetProperty(ref _sortDescending, value))
+            {
+                ApplyFilter();
+            }
+        }
+    }
 
     public MainWindowViewModel()
     {
         // Commands
         LoadDataCommand = new RelayCommand(LoadData);
         SaveDataCommand = new RelayCommand(SaveData);
-        AddDomesticVehicleCommand = new RelayCommand(AddDomesticVehicle);
-        AddForeignVehicleCommand = new RelayCommand(AddForeignVehicle);
+        AddVehicleCommand = new RelayCommand(AddVehicle);
         RemoveVehicleCommand = new RelayCommand<Vehicle>(RemoveVehicle);
         AddCustomerCommand = new RelayCommand(AddCustomer);
         RemoveCustomerCommand = new RelayCommand<Customer>(RemoveCustomer);
@@ -82,8 +122,7 @@ public class MainWindowViewModel : ViewModelBase
 
     public IRelayCommand LoadDataCommand { get; }
     public IRelayCommand SaveDataCommand { get; }
-    public IRelayCommand AddDomesticVehicleCommand { get; }
-    public IRelayCommand AddForeignVehicleCommand { get; }
+    public IRelayCommand AddVehicleCommand { get; }
     public IRelayCommand<Vehicle> RemoveVehicleCommand { get; }
     public IRelayCommand AddCustomerCommand { get; }
     public IRelayCommand<Customer> RemoveCustomerCommand { get; }
@@ -124,6 +163,7 @@ public class MainWindowViewModel : ViewModelBase
             foreach (var c in data.Customers) Customers.Add(c);
 
             ApplyFilter(); // Refresh filtered view
+            UpdateAvailableBrands();
             StatusMessage = "Data loaded successfully.";
         }
         catch (Exception ex)
@@ -151,22 +191,14 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    public void AddDomesticVehicle()
+    public void AddVehicle()
     {
-        var vehicle = new DomesticVehicle { Brand = "New Brand", Model = "New Model", BasePrice = 10000.0 };
+        var vehicle = new Vehicle { Brand = "Нова марка", Model = "Нова модель", BasePrice = 10000.0, Origin = VehicleOrigin.Domestic };
         Vehicles.Add(vehicle);
         SelectedVehicle = vehicle;
         ApplyFilter();
         MatchVehicles();
-    }
-
-    public void AddForeignVehicle()
-    {
-        var vehicle = new ForeignVehicle { Brand = "New Brand", Model = "New Model", BasePrice = 10000.0 };
-        Vehicles.Add(vehicle);
-        SelectedVehicle = vehicle;
-        ApplyFilter();
-        MatchVehicles();
+        UpdateAvailableBrands();
     }
 
     public void RemoveVehicle(Vehicle? vehicle)
@@ -176,6 +208,7 @@ public class MainWindowViewModel : ViewModelBase
             Vehicles.Remove(vehicle);
             ApplyFilter();
             MatchVehicles();
+            UpdateAvailableBrands();
         }
     }
 
@@ -234,13 +267,31 @@ public class MainWindowViewModel : ViewModelBase
             query = query.Where(v => v.Brand != null && v.Brand.Contains(SearchBrand, StringComparison.OrdinalIgnoreCase));
         }
 
+        if (!string.IsNullOrWhiteSpace(SearchModel))
+        {
+            query = query.Where(v => v.Model != null && v.Model.Contains(SearchModel, StringComparison.OrdinalIgnoreCase));
+        }
+
         if (SearchMinYear.HasValue)
         {
             query = query.Where(v => v.Year >= SearchMinYear.Value);
         }
 
-        // Scenario 3: LINQ sorting implementation
-        query = query.OrderBy(v => v.CalculateFinalPrice());
+        if (SearchBodyType != BodyType.Any)
+        {
+            query = query.Where(v => v.BodyType == SearchBodyType);
+        }
+
+        query = SelectedSortOption switch
+        {
+            SortOption.Brand => SortDescending ? query.OrderByDescending(v => v.Brand) : query.OrderBy(v => v.Brand),
+            SortOption.Model => SortDescending ? query.OrderByDescending(v => v.Model) : query.OrderBy(v => v.Model),
+            SortOption.Year => SortDescending ? query.OrderByDescending(v => v.Year) : query.OrderBy(v => v.Year),
+            SortOption.BasePrice => SortDescending ? query.OrderByDescending(v => v.BasePrice) : query.OrderBy(v => v.BasePrice),
+            SortOption.FinalPrice => SortDescending ? query.OrderByDescending(v => v.CalculateFinalPrice()) : query.OrderBy(v => v.CalculateFinalPrice()),
+            SortOption.Origin => SortDescending ? query.OrderByDescending(v => v.Origin) : query.OrderBy(v => v.Origin),
+            _ => query.OrderBy(v => v.CalculateFinalPrice())
+        };
 
         var result = query.ToList();
         FilteredVehicles.Clear();
@@ -259,5 +310,30 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    public void UpdateAvailableBrands()
+    {
+        var brands = Vehicles.Select(v => v.Brand)
+            .Where(b => !string.IsNullOrWhiteSpace(b))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(b => b)
+            .ToList();
+            
+        AvailableBrands.Clear();
+        foreach (var b in brands)
+        {
+            AvailableBrands.Add(b);
+        }
 
+        var models = Vehicles.Select(v => v.Model)
+            .Where(m => !string.IsNullOrWhiteSpace(m))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(m => m)
+            .ToList();
+            
+        AvailableModels.Clear();
+        foreach (var m in models)
+        {
+            AvailableModels.Add(m);
+        }
+    }
 }

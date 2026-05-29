@@ -39,19 +39,24 @@
                     <DockPanel Grid.Column="0">
                         <!-- Filtering Panel -->
                         <Border DockPanel.Dock="Top" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="5" Margin="5">
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <TextBlock Text="Пошук (Фільтр):" VerticalAlignment="Center" FontWeight="Bold"/>
-                                <TextBlock Text="Марка:" VerticalAlignment="Center"/>
-                                <TextBox Text="{Binding SearchBrand}" Width="150" />
-                                <TextBlock Text="Мін. Рік:" VerticalAlignment="Center"/>
-                                <NumericUpDown Value="{Binding SearchMinYear, TargetNullValue={StaticResource DefaultYear}, FallbackValue={StaticResource DefaultYear}}" Width="120" FormatString="0" Minimum="1900" Maximum="2100" />
-                                <Button Content="Застосувати фільтр" Command="{Binding ApplyFilterCommand}"/>
-                            </StackPanel>
+                            <WrapPanel Orientation="Horizontal" Margin="0,0,0,0">
+                                <!-- Filter Section -->
+                                <TextBlock Text="Фільтр:" VerticalAlignment="Center" FontWeight="Bold" Margin="5"/>
+                                <AutoCompleteBox Text="{Binding SearchBrand}" Watermark="Марка" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableBrands}" FilterMode="Contains" Width="120" Margin="5"/>
+                                <AutoCompleteBox Text="{Binding SearchModel}" Watermark="Модель" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableModels}" FilterMode="Contains" Width="120" Margin="5"/>
+                                <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BodyTypes}" SelectedItem="{Binding SearchBodyType}" Width="120" Margin="5"/>
+                                <NumericUpDown Value="{Binding SearchMinYear, TargetNullValue={StaticResource DefaultYear}, FallbackValue={StaticResource DefaultYear}}" Width="100" FormatString="0" Minimum="1900" Maximum="2100" Margin="5"/>
+                                <Button Content="Шукати" Command="{Binding ApplyFilterCommand}" Margin="5"/>
+                                
+                                <!-- Sort Section -->
+                                <TextBlock Text="Сортувати за:" VerticalAlignment="Center" FontWeight="Bold" Margin="15,5,5,5"/>
+                                <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).SortOptions}" SelectedItem="{Binding SelectedSortOption}" Width="120" Margin="5"/>
+                                <CheckBox Content="Спадання" IsChecked="{Binding SortDescending}" VerticalAlignment="Center" Margin="5"/>
+                            </WrapPanel>
                         </Border>
 
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="5">
-                            <Button Content="Додати Вітчизняне Авто" Command="{Binding AddDomesticVehicleCommand}"/>
-                            <Button Content="Додати Іноземне Авто" Command="{Binding AddForeignVehicleCommand}"/>
+                            <Button Content="Додати Авто" Command="{Binding AddVehicleCommand}"/>
                             <Button Content="Видалити" Command="{Binding RemoveVehicleCommand}" CommandParameter="{Binding SelectedVehicle}"/>
                         </StackPanel>
 
@@ -63,6 +68,7 @@
                                 <DataGridTextColumn Header="Рік" Binding="{Binding Year}"/>
                                 <DataGridTextColumn Header="Тип кузова" Binding="{Binding BodyType}"/>
                                 <DataGridTextColumn Header="Ціна" Binding="{Binding BasePrice}"/>
+                                <DataGridTextColumn Header="Походження" Binding="{Binding Origin}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </DockPanel>
@@ -73,10 +79,10 @@
                             <TextBlock Text="Редагування Авто" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                             
                             <TextBlock Text="Марка:" />
-                            <TextBox Text="{Binding Brand}" />
+                            <AutoCompleteBox Text="{Binding Brand}" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableBrands}" FilterMode="Contains" />
 
                             <TextBlock Text="Модель:" />
-                            <TextBox Text="{Binding Model}" />
+                            <AutoCompleteBox Text="{Binding Model}" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableModels}" FilterMode="Contains" />
 
                             <TextBlock Text="Тип кузова:" />
                             <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BodyTypes}" SelectedItem="{Binding BodyType}" HorizontalAlignment="Stretch" />
@@ -86,6 +92,9 @@
 
                             <TextBlock Text="Ціна:" />
                             <NumericUpDown Value="{Binding BasePrice, TargetNullValue={StaticResource DefaultPrice}, FallbackValue={StaticResource DefaultPrice}}" Minimum="1" Maximum="100000000" />
+
+                            <TextBlock Text="Походження:" />
+                            <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).VehicleOrigins}" SelectedItem="{Binding Origin}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -126,7 +135,7 @@
                             <NumericUpDown Value="{Binding Requirements.MaxPrice, TargetNullValue={StaticResource DefaultMaxPrice}, FallbackValue={StaticResource DefaultMaxPrice}}" Minimum="0" Maximum="100000000" />
 
                             <TextBlock Text="Бажана марка:" />
-                            <TextBox Text="{Binding Requirements.PreferredBrand}" />
+                            <AutoCompleteBox Text="{Binding Requirements.PreferredBrand}" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableBrands}" FilterMode="Contains" />
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -153,6 +162,7 @@
                             <DataGridTextColumn Header="Рік" Binding="{Binding Year}"/>
                             <DataGridTextColumn Header="Тип кузова" Binding="{Binding BodyType}"/>
                             <DataGridTextColumn Header="Ціна" Binding="{Binding BasePrice}"/>
+                            <DataGridTextColumn Header="Походження" Binding="{Binding Origin}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
