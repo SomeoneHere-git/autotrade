@@ -5,11 +5,52 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="using:AutoTrade.Models"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        Width="1000" Height="700" MinWidth="800" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
         x:Class="AutoTrade.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="AutoTrade - Інформаційна система автосалону">
+
+    <Window.Styles>
+        <!-- Modern Buttons -->
+        <Style Selector="Button">
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Background" Value="#0078D7"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#005A9E"/>
+        </Style>
+
+        <!-- Form Elements -->
+        <Style Selector="TextBox, AutoCompleteBox, ComboBox, NumericUpDown">
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+
+        <!-- DataGrid Improvements -->
+        <Style Selector="DataGrid">
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="RowBackground" Value="White"/>
+        </Style>
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="#EEEEEE"/>
+            <Setter Property="Padding" Value="10,8"/>
+        </Style>
+    </Window.Styles>
 
     <Window.Resources>
         <sys:Double x:Key="DefaultPrice">1.0</sys:Double>
@@ -42,10 +83,10 @@
                             <WrapPanel Orientation="Horizontal" Margin="0,0,0,0">
                                 <!-- Filter Section -->
                                 <TextBlock Text="Фільтр:" VerticalAlignment="Center" FontWeight="Bold" Margin="5"/>
-                                <AutoCompleteBox Text="{Binding SearchBrand}" Watermark="Марка" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableBrands}" FilterMode="Contains" Width="120" Margin="5"/>
-                                <AutoCompleteBox Text="{Binding SearchModel}" Watermark="Модель" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableModels}" FilterMode="Contains" Width="120" Margin="5"/>
+                                <AutoCompleteBox Text="{Binding SearchBrand}" PlaceholderText="Марка" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableBrands}" FilterMode="Contains" Width="120" Margin="5"/>
+                                <AutoCompleteBox Text="{Binding SearchModel}" PlaceholderText="Модель" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableModels}" FilterMode="Contains" Width="120" Margin="5"/>
                                 <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BodyTypes}" SelectedItem="{Binding SearchBodyType}" Width="120" Margin="5"/>
-                                <NumericUpDown Value="{Binding SearchMinYear, TargetNullValue={StaticResource DefaultYear}, FallbackValue={StaticResource DefaultYear}}" Width="100" FormatString="0" Minimum="1900" Maximum="2100" Margin="5"/>
+                                <NumericUpDown Value="{Binding SearchMinYear, TargetNullValue={StaticResource DefaultYear}, FallbackValue={StaticResource DefaultYear}}" Width="130" FormatString="0" Minimum="1900" Maximum="2100" Margin="5"/>
                                 <Button Content="Шукати" Command="{Binding ApplyFilterCommand}" Margin="5"/>
                                 
                                 <!-- Sort Section -->
