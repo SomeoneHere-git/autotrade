@@ -68,6 +68,72 @@
                 <MenuItem Header="Завантажити дані" Command="{Binding LoadDataCommand}"/>
                 <MenuItem Header="Зберегти дані" Command="{Binding SaveDataCommand}"/>
             </MenuItem>
+            
+            <MenuItem Header="_Сортування">
+                <MenuItem Header="За маркою" Command="{Binding SetSortOptionCommand}">
+                    <MenuItem.CommandParameter>
+                        <models:SortOption>Brand</models:SortOption>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
+                <MenuItem Header="За моделлю" Command="{Binding SetSortOptionCommand}">
+                    <MenuItem.CommandParameter>
+                        <models:SortOption>Model</models:SortOption>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
+                <MenuItem Header="За роком" Command="{Binding SetSortOptionCommand}">
+                    <MenuItem.CommandParameter>
+                        <models:SortOption>Year</models:SortOption>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
+                <MenuItem Header="За базовою ціною" Command="{Binding SetSortOptionCommand}">
+                    <MenuItem.CommandParameter>
+                        <models:SortOption>BasePrice</models:SortOption>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
+                <MenuItem Header="За фінальною ціною" Command="{Binding SetSortOptionCommand}">
+                    <MenuItem.CommandParameter>
+                        <models:SortOption>FinalPrice</models:SortOption>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
+                <MenuItem Header="За походженням" Command="{Binding SetSortOptionCommand}">
+                    <MenuItem.CommandParameter>
+                        <models:SortOption>Origin</models:SortOption>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="За спаданням" StaysOpenOnClick="True">
+                    <MenuItem.Icon>
+                        <CheckBox IsChecked="{Binding SortDescending}" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            
+            <MenuItem Header="_Фільтр">
+                <MenuItem StaysOpenOnClick="True">
+                    <MenuItem.Header>
+                        <StackPanel Margin="5" Spacing="5" Width="220">
+                            <TextBlock Text="Марка:" FontWeight="Bold"/>
+                            <AutoCompleteBox Text="{Binding SearchBrand}" PlaceholderText="Марка" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableBrands}" FilterMode="Contains"/>
+                            
+                            <TextBlock Text="Модель:" FontWeight="Bold"/>
+                            <AutoCompleteBox Text="{Binding SearchModel}" PlaceholderText="Модель" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableModels}" FilterMode="Contains"/>
+                            
+                            <TextBlock Text="Кузов:" FontWeight="Bold"/>
+                            <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BodyTypes}" SelectedItem="{Binding SearchBodyType}" HorizontalAlignment="Stretch"/>
+                            
+                            <TextBlock Text="Мін. Рік:" FontWeight="Bold"/>
+                            <NumericUpDown Value="{Binding SearchMinYear, TargetNullValue={StaticResource DefaultYear}, FallbackValue={StaticResource DefaultYear}}" FormatString="0" Minimum="1900" Maximum="2100"/>
+                            
+                            <Button Content="Застосувати" Command="{Binding ApplyFilterCommand}" HorizontalAlignment="Stretch" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </MenuItem.Header>
+                </MenuItem>
+            </MenuItem>
+            
+            <MenuItem Header="_Автомобілі">
+                <MenuItem Header="Додати авто" Command="{Binding AddVehicleCommand}"/>
+                <MenuItem Header="Видалити авто" Command="{Binding RemoveVehicleCommand}" CommandParameter="{Binding SelectedVehicle}"/>
+            </MenuItem>
         </Menu>
 
         <Border DockPanel.Dock="Bottom" Background="LightGray" Padding="5">
@@ -78,29 +144,6 @@
             <TabItem Header="Каталог Автомобілів">
                 <Grid ColumnDefinitions="*, 300">
                     <DockPanel Grid.Column="0">
-                        <!-- Filtering Panel -->
-                        <Border DockPanel.Dock="Top" BorderBrush="Gray" BorderThickness="0,0,0,1" Padding="5" Margin="5">
-                            <WrapPanel Orientation="Horizontal" Margin="0,0,0,0">
-                                <!-- Filter Section -->
-                                <TextBlock Text="Фільтр:" VerticalAlignment="Center" FontWeight="Bold" Margin="5"/>
-                                <AutoCompleteBox Text="{Binding SearchBrand}" PlaceholderText="Марка" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableBrands}" FilterMode="Contains" Width="120" Margin="5"/>
-                                <AutoCompleteBox Text="{Binding SearchModel}" PlaceholderText="Модель" ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).AvailableModels}" FilterMode="Contains" Width="120" Margin="5"/>
-                                <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BodyTypes}" SelectedItem="{Binding SearchBodyType}" Width="120" Margin="5"/>
-                                <NumericUpDown Value="{Binding SearchMinYear, TargetNullValue={StaticResource DefaultYear}, FallbackValue={StaticResource DefaultYear}}" Width="130" FormatString="0" Minimum="1900" Maximum="2100" Margin="5"/>
-                                <Button Content="Шукати" Command="{Binding ApplyFilterCommand}" Margin="5"/>
-                                
-                                <!-- Sort Section -->
-                                <TextBlock Text="Сортувати за:" VerticalAlignment="Center" FontWeight="Bold" Margin="15,5,5,5"/>
-                                <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).SortOptions}" SelectedItem="{Binding SelectedSortOption}" Width="120" Margin="5"/>
-                                <CheckBox Content="Спадання" IsChecked="{Binding SortDescending}" VerticalAlignment="Center" Margin="5"/>
-                            </WrapPanel>
-                        </Border>
-
-                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="5">
-                            <Button Content="Додати Авто" Command="{Binding AddVehicleCommand}"/>
-                            <Button Content="Видалити" Command="{Binding RemoveVehicleCommand}" CommandParameter="{Binding SelectedVehicle}"/>
-                        </StackPanel>
-
                         <!-- Scenario 3 and 4 -> Uses FilteredVehicles which is sorted via LINQ -->
                         <DataGrid ItemsSource="{Binding FilteredVehicles}" SelectedItem="{Binding SelectedVehicle}" AutoGenerateColumns="False" IsReadOnly="True" Margin="5">
                             <DataGrid.Columns>

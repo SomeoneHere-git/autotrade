@@ -118,6 +118,7 @@ public class MainWindowViewModel : ViewModelBase
         RemoveCustomerCommand = new RelayCommand<Customer>(RemoveCustomer);
         MatchVehiclesCommand = new RelayCommand(MatchVehicles);
         ApplyFilterCommand = new RelayCommand(ApplyFilter);
+        SetSortOptionCommand = new RelayCommand<SortOption>(SetSortOption);
     }
 
     public IRelayCommand LoadDataCommand { get; }
@@ -128,6 +129,7 @@ public class MainWindowViewModel : ViewModelBase
     public IRelayCommand<Customer> RemoveCustomerCommand { get; }
     public IRelayCommand MatchVehiclesCommand { get; }
     public IRelayCommand ApplyFilterCommand { get; }
+    public IRelayCommand<SortOption> SetSortOptionCommand { get; }
 
     // React to SelectedCustomer changes
     private void OnSelectedCustomerChanged(Customer? oldValue, Customer? newValue)
@@ -199,6 +201,11 @@ public class MainWindowViewModel : ViewModelBase
         ApplyFilter();
         MatchVehicles();
         UpdateAvailableBrands();
+    }
+
+    public void SetSortOption(SortOption option)
+    {
+        SelectedSortOption = option;
     }
 
     public void RemoveVehicle(Vehicle? vehicle)
