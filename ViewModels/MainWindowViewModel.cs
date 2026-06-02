@@ -231,7 +231,7 @@ public class MainWindowViewModel : ViewModelBase
 
         if (!string.IsNullOrWhiteSpace(SearchBrand))
         {
-            query = query.Where(v => v.Brand.Contains(SearchBrand, StringComparison.OrdinalIgnoreCase));
+            query = query.Where(v => v.Brand != null && v.Brand.Contains(SearchBrand, StringComparison.OrdinalIgnoreCase));
         }
 
         if (SearchMinYear.HasValue)

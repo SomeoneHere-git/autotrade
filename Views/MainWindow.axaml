@@ -4,11 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="using:AutoTrade.Models"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
         x:Class="AutoTrade.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="AutoTrade - Інформаційна система автосалону">
+
+    <Window.Resources>
+        <sys:Double x:Key="DefaultPrice">1.0</sys:Double>
+        <sys:Double x:Key="DefaultMaxPrice">0.0</sys:Double>
+        <sys:Int32 x:Key="DefaultYear">1900</sys:Int32>
+    </Window.Resources>
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
@@ -37,7 +44,7 @@
                                 <TextBlock Text="Марка:" VerticalAlignment="Center"/>
                                 <TextBox Text="{Binding SearchBrand}" Width="150" />
                                 <TextBlock Text="Мін. Рік:" VerticalAlignment="Center"/>
-                                <TextBox Text="{Binding SearchMinYear}" Width="80" />
+                                <NumericUpDown Value="{Binding SearchMinYear, TargetNullValue={StaticResource DefaultYear}, FallbackValue={StaticResource DefaultYear}}" Width="120" FormatString="0" Minimum="1900" Maximum="2100" />
                                 <Button Content="Застосувати фільтр" Command="{Binding ApplyFilterCommand}"/>
                             </StackPanel>
                         </Border>
@@ -61,7 +68,7 @@
                     </DockPanel>
 
                     <!-- Details Panel -->
-                    <Border Grid.Column="1" Margin="5" Padding="10" BorderBrush="Gray" BorderThickness="1" CornerRadius="5">
+                    <Border Grid.Column="1" IsVisible="{Binding SelectedVehicle, Converter={x:Static ObjectConverters.IsNotNull}}" Margin="5" Padding="10" BorderBrush="Gray" BorderThickness="1" CornerRadius="5">
                         <StackPanel Spacing="5" DataContext="{Binding SelectedVehicle}">
                             <TextBlock Text="Редагування Авто" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                             
@@ -75,10 +82,10 @@
                             <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BodyTypes}" SelectedItem="{Binding BodyType}" HorizontalAlignment="Stretch" />
 
                             <TextBlock Text="Рік випуску:" />
-                            <TextBox Text="{Binding Year}" />
+                            <NumericUpDown Value="{Binding Year, TargetNullValue={StaticResource DefaultYear}, FallbackValue={StaticResource DefaultYear}}" FormatString="0" Minimum="1900" Maximum="2100" />
 
                             <TextBlock Text="Ціна:" />
-                            <TextBox Text="{Binding BasePrice}" />
+                            <NumericUpDown Value="{Binding BasePrice, TargetNullValue={StaticResource DefaultPrice}, FallbackValue={StaticResource DefaultPrice}}" Minimum="1" Maximum="100000000" />
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -102,7 +109,7 @@
                     </DockPanel>
 
                     <!-- Details Panel -->
-                    <Border Grid.Column="1" Margin="5" Padding="10" BorderBrush="Gray" BorderThickness="1" CornerRadius="5">
+                    <Border Grid.Column="1" IsVisible="{Binding SelectedCustomer, Converter={x:Static ObjectConverters.IsNotNull}}" Margin="5" Padding="10" BorderBrush="Gray" BorderThickness="1" CornerRadius="5">
                         <StackPanel Spacing="5" DataContext="{Binding SelectedCustomer}">
                             <TextBlock Text="Дані Клієнта" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                             
@@ -116,7 +123,7 @@
                             <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BodyTypes}" SelectedItem="{Binding Requirements.PreferredBodyType}" HorizontalAlignment="Stretch" />
 
                             <TextBlock Text="Бюджет (Max):" />
-                            <TextBox Text="{Binding Requirements.MaxPrice}" />
+                            <NumericUpDown Value="{Binding Requirements.MaxPrice, TargetNullValue={StaticResource DefaultMaxPrice}, FallbackValue={StaticResource DefaultMaxPrice}}" Minimum="0" Maximum="100000000" />
 
                             <TextBlock Text="Бажана марка:" />
                             <TextBox Text="{Binding Requirements.PreferredBrand}" />
